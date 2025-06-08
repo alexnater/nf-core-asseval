@@ -3,7 +3,7 @@ process GENESCOPEFK {
     label 'process_low'
 
     // WARN: Version information not provided by tool on CLI. Please update version string below when bumping container versions.
-    container 'assets/containers/genescope_1.0.0.sif'
+    container "${projectDir}/assets/containers/genescope_1.0.0.sif"
 
     input:
     tuple val(meta), path(fastk_histex_histogram)
