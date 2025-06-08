@@ -4,8 +4,8 @@ process MERQURYFK_PLOIDYPLOT {
 
     // WARN: Version information not provided by tool on CLI. Please update version string below when bumping container versions.
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/merquryfk:1.1.1--h71df26d_1':
-        'biocontainers/merquryfk:1.1.1--h71df26d_1' }"
+        'https://depot.galaxyproject.org/singularity/merquryfk:1.1.2--h71df26d_0':
+        'biocontainers/merquryfk:1.1.2--h71df26d_0' }"
 
     input:
     tuple val(meta), path(fastk_hist), path(fastk_ktab)
@@ -29,8 +29,8 @@ process MERQURYFK_PLOIDYPLOT {
     }
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def FASTK_VERSION = 'f18a4e6d2207539f7b84461daebc54530a9559b0' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
-    def MERQURY_VERSION = '8f3ab706e4cf4d7b7d1dfe5739859e3ebd26c494' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
+    def FASTK_VERSION = '1.1.0--h71df26d_1' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
+    def MERQURY_VERSION = '1.1.2--h71df26d_0' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
     """
     PloidyPlot \\
         $args \\

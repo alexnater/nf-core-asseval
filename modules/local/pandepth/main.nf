@@ -3,7 +3,7 @@ process PANDEPTH {
     label 'process_medium'
 
     // FIXME Conda is not supported at the moment
-    container "containers/pandepth_2.25.sif"
+    container "assets/containers/pandepth_2.25.sif"
 
     input:
     tuple val(meta) , path(bam), path(bai), path(bed)

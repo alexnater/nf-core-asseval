@@ -1,0 +1,75 @@
+Changes in component 'nf-core/merquryfk/merquryfk'
+'modules/nf-core/merquryfk/merquryfk/meta.yml' is unchanged
+Changes in 'merquryfk/merquryfk/main.nf':
+--- modules/nf-core/merquryfk/merquryfk/main.nf
++++ modules/nf-core/merquryfk/merquryfk/main.nf
+@@ -3,12 +3,14 @@
+     label 'process_medium'
+ 
+     // WARN: Version information not provided by tool on CLI. Please update version string below when bumping container versions.
+-    container 'ghcr.io/nbisweden/fastk_genescopefk_merquryfk:1.2'
++    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
++        'https://depot.galaxyproject.org/singularity/merquryfk:1.1.1--h71df26d_1':
++        'biocontainers/merquryfk:1.1.1--h71df26d_1' }"
+ 
+     input:
+-    tuple val(meta), path(fastk_hist),path(fastk_ktab),path(assembly),path(haplotigs)
+-    path matktab                                                                        //optional
+-    path patktab                                                                        //optional
++    tuple val(meta), path(fastk_hist), path(fastk_ktab), path(fastk_data), path(assembly), path(haplotigs)
++    tuple val(met),  path(mat_ktab), path(mat_data)                                                         //optional
++    tuple val(met),  path(pat_ktab), path(pat_data)                                                         //optional
+ 
+     output:
+     tuple val(meta), path("${prefix}.completeness.stats")         , emit: stats
+@@ -39,20 +41,23 @@
+     }
+     def args = task.ext.args ?: ''
+     prefix = task.ext.prefix ?: "${meta.id}"
+-    def mat_ktab = matktab ? "${matktab.find{ it.toString().endsWith(".ktab") }}" : ''
+-    def pat_ktab = patktab ? "${patktab.find{ it.toString().endsWith(".ktab") }}" : ''
+-    def FASTK_VERSION = 'f18a4e6d2207539f7b84461daebc54530a9559b0' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
+-    def MERQURY_VERSION = '8ae344092df5dcaf83cfb7f90f662597a9b1fc61' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
++    def FASTK_VERSION = '1.1.0--h71df26d_1' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
++    def MERQURY_VERSION = '1.1.1--h71df26d_1' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
+     """
++    mkdir -p tmp
++    
+     MerquryFK \\
+         $args \\
+         -T$task.cpus \\
+-        ${fastk_ktab.find{ it.toString().endsWith(".ktab") }} \\
+-        ${mat_ktab} \\
+-        ${pat_ktab} \\
++        -Ptmp \\
++        $fastk_ktab \\
++        $mat_ktab \\
++        $pat_ktab \\
+         $assembly \\
+         $haplotigs \\
+         $prefix
++
++    rm -r tmp
+ 
+     cat <<-END_VERSIONS > versions.yml
+     "${task.process}":
+@@ -63,8 +68,8 @@
+     """
+     stub:
+     prefix = task.ext.prefix ?: "${meta.id}"
+-    def FASTK_VERSION = 'f18a4e6d2207539f7b84461daebc54530a9559b0' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
+-    def MERQURY_VERSION = '8ae344092df5dcaf83cfb7f90f662597a9b1fc61' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
++    def FASTK_VERSION = '1.1.0--h71df26d_1' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
++    def MERQURY_VERSION = '1.1.1--h71df26d_1' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
+     """
+     touch ${prefix}.completeness.stats
+     touch ${prefix}.qv
+
+'modules/nf-core/merquryfk/merquryfk/tests/nextflow.pdf.config' is unchanged
+'modules/nf-core/merquryfk/merquryfk/tests/nextflow.config' is unchanged
+'modules/nf-core/merquryfk/merquryfk/tests/tags.yml' is unchanged
+'modules/nf-core/merquryfk/merquryfk/tests/main.nf.test' is unchanged
+'modules/nf-core/merquryfk/merquryfk/tests/nextflow.png.config' is unchanged
+'modules/nf-core/merquryfk/merquryfk/tests/nextflow.trio.config' is unchanged
+'modules/nf-core/merquryfk/merquryfk/tests/main.nf.test.snap' is unchanged
+************************************************************

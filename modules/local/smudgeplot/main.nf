@@ -3,7 +3,7 @@ process SMUDGEPLOT {
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container 'containers/fastk_merquryfk_smudgeplot.sif'
+    container 'assets/containers/fastk_merquryfk_smudgeplot.sif'
 
     input:
     tuple val(meta), path(ktab), path(data)
