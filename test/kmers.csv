@@ -1,0 +1,4 @@
+sample,type,kmer_size,db
+Pup3-NMR,meryl,31,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/downstream_analyses/kmer/meryl/child.k31.meryl
+Queen-NMR,meryl,31,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/downstream_analyses/kmer/meryl/maternal.k31.meryl
+Dad-NMR,meryl,31,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/downstream_analyses/kmer/meryl/paternal.k31.meryl

@@ -15,7 +15,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { ASSEVAL  } from './workflows/asseval'
+include { ASSEVAL                 } from './workflows/asseval'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_asseval_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_asseval_pipeline'
 include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_asseval_pipeline'
@@ -29,7 +29,7 @@ include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_asse
 // TODO nf-core: Remove this line if you don't need a FASTA file
 //   This is an example of how to use getGenomeAttribute() to fetch parameters
 //   from igenomes.config using `--genome`
-params.fasta = getGenomeAttribute('fasta')
+// params.fasta = getGenomeAttribute('fasta')
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -43,7 +43,9 @@ params.fasta = getGenomeAttribute('fasta')
 workflow NFCORE_ASSEVAL {
 
     take:
-    samplesheet // channel: samplesheet read in from --input
+    assemblies // channel: samplesheet read in from --assemblies
+    reads      // channel: samplesheet read in from --reads
+    kmers      // channel: samplesheet read in from --kmer
 
     main:
 
@@ -51,7 +53,9 @@ workflow NFCORE_ASSEVAL {
     // WORKFLOW: Run pipeline
     //
     ASSEVAL (
-        samplesheet
+        assemblies,
+        reads,
+        kmers
     )
     emit:
     multiqc_report = ASSEVAL.out.multiqc_report // channel: /path/to/multiqc_report.html
@@ -74,14 +78,18 @@ workflow {
         params.monochrome_logs,
         args,
         params.outdir,
-        params.input
+        params.assemblies,
+        params.reads,
+        params.kmers
     )
 
     //
     // WORKFLOW: Run main workflow
     //
     NFCORE_ASSEVAL (
-        PIPELINE_INITIALISATION.out.samplesheet
+        PIPELINE_INITIALISATION.out.assemblies,
+        PIPELINE_INITIALISATION.out.reads,
+        PIPELINE_INITIALISATION.out.kmers
     )
     //
     // SUBWORKFLOW: Run completion tasks

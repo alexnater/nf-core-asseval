@@ -1,0 +1,51 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/nf-core/asseval/master/assets/schema_reads.json",
+    "title": "nf-core/asseval pipeline - params.reads schema",
+    "description": "Schema for the file provided with params.reads",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "sample": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Sample name must be provided and cannot contain spaces",
+                "meta": ["sample"]
+            },
+            "type": {
+                "type": "string",
+                "enum": ["hifi", "ont", "illumina", "hic"],
+                "errorMessage": "Read type (hifi, ont, illumina)",
+                "meta": ["type"]
+            },
+            "runid": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Run id must be provided and cannot contain spaces",
+                "meta": ["run"]
+            },
+            "library": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Library name must be provided and cannot contain spaces",
+                "meta": ["lib"]
+            },
+            "fastq_1": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
+                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+            },
+            "fastq_2": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
+                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+            }
+        },
+        "required": ["sample", "runid", "fastq_1"]
+    }
+}

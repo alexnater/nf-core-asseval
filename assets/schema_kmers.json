@@ -1,0 +1,40 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/nf-core/asseval/master/assets/schema_kmers.json",
+    "title": "nf-core/asseval pipeline - params.kmers schema",
+    "description": "Schema for the file provided with params.kmers",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "sample": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Sample name must be provided and cannot contain spaces",
+                "meta": ["sample"]
+            },
+            "type": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Type of k-mer database",
+                "meta": ["type"]
+            },
+            "kmer_size": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "default": 21,
+                "errorMessage": "Size of k-mers must be provided",
+                "meta": ["kmer_size"]
+            },
+            "db": {
+                "type": "string",
+                "format": "directory-path",
+                "exists": true,
+                "pattern": "^\\S+$",
+                "errorMessage": "Full path to directory with meryl database must be provided"
+            }
+        },
+        "required": ["sample", "type", "kmer_size", "db"]
+    }
+}

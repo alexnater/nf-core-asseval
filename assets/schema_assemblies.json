@@ -1,0 +1,46 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/nf-core/asseval/master/assets/schema_assemblies.json",
+    "title": "nf-core/asseval pipeline - params.assemblies schema",
+    "description": "Schema for the file provided with params.assemblies",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "sample": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Sample name must be provided and cannot contain spaces",
+                "meta": ["sample"]
+            },
+            "type": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Type of assembly (primary, alt, hap1, hap2)",
+                "meta": ["type"]
+            },
+            "fasta": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.f(ast)?a$",
+                "errorMessage": "Fasta file must be provided, cannot contain spaces and must have extension '.fa' or '.fasta'"
+            },
+            "gtf": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.gtf|gff$",
+                "errorMessage": "GTF/GFF file cannot contain spaces and must have extension '.gtf' or '.gff'"
+            },
+            "yaml": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.yaml|yml$",
+                "errorMessage": "YAML file cannot contain spaces and must have extension '.yaml' or '.yml'"
+            }
+        },
+        "required": ["sample", "type", "fasta"]
+    }
+}

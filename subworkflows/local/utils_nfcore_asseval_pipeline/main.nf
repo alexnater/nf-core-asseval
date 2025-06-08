@@ -29,9 +29,11 @@ workflow PIPELINE_INITIALISATION {
     version           // boolean: Display version and exit
     validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
     monochrome_logs   // boolean: Do not use coloured log outputs
-    nextflow_cli_args //   array: List of positional nextflow CLI args
-    outdir            //  string: The output directory where the results will be saved
-    input             //  string: Path to input samplesheet
+    nextflow_cli_args // array: List of positional nextflow CLI args
+    outdir            // string: The output directory where the results will be saved
+    assemblies        // string: Path to assembly samplesheet
+    reads             // string: Path to reads samplesheet
+    kmers             // string: Path to k-mer databases samplesheet
 
     main:
 
@@ -69,32 +71,82 @@ workflow PIPELINE_INITIALISATION {
     validateInputParameters()
 
     //
-    // Create channel from input file provided through params.input
+    // Create channel from input file provided through params.assemblies
     //
-
     Channel
-        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
-        .map {
-            meta, fastq_1, fastq_2 ->
+        .fromList(samplesheetToList(assemblies, "${projectDir}/assets/schema_assemblies.json"))
+        .map { meta, fasta, gtf, yaml ->
+            def id = "${meta.sample}_${meta.type}"
+            [ meta + [id: id], fasta, gtf, yaml ]
+        }
+        .set { ch_assemblies }
+
+    //
+    // Create channel from input files provided through params.reads
+    //
+    ch_reads = Channel.empty()
+    reads.split(',').each { reads_file ->
+        Channel
+            .fromList(samplesheetToList(reads_file, "${projectDir}/assets/schema_reads.json"))
+            // group by sample:
+            .map { meta, fastq_1, fastq_2 ->
+                def id = "${meta.sample}_${meta.run}"
+                def library = meta.lib ?: "A"
                 if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
+                    return [ meta + [ id:id, single_end:true, lib:library ], [ fastq_1 ] ]
                 } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
+                    return [ meta + [ id:id, single_end:false, lib:library ], [ fastq_1, fastq_2 ] ]
                 }
-        }
+            }
+            .mix(ch_reads)
+            .set { ch_reads }
+    }
+
+    // Annotate channel with some statistics
+    ch_reads
+        // group by sample + type:
+        .map { meta, infiles -> return [ meta.subMap(['sample', 'type']), meta, infiles ] }
         .groupTuple()
-        .map { samplesheet ->
-            validateInputSamplesheet(samplesheet)
+        .map { gkey, metas, infiles ->
+            return [ metas.collect { it + [runs_per_sample: infiles.size()] }, infiles ]
         }
-        .map {
-            meta, fastqs ->
-                return [ meta, fastqs.flatten() ]
+        .transpose()
+        // group by sample + type + lib:
+        .map { meta, infiles -> return [ meta.subMap(['sample', 'type', 'lib']), meta, infiles ] }
+        .groupTuple()
+        .map { gkey, metas, infiles ->
+            return [ metas.collect { it + [runs_per_lib: infiles.size()] }, infiles ]
         }
-        .set { ch_samplesheet }
+        .transpose()
+        // group by type:
+        .map { meta, infiles -> return [ meta.subMap(['type']), meta, infiles ] }
+        .groupTuple()
+        .map { gkey, metas, infiles ->
+            def count = metas.toUnique { meta -> meta.sample }.size()
+            return [ metas.collect { it + [samples_per_type: count] }, infiles ]
+        }
+        .transpose()
+        .set { ch_reads }
+
+    //
+    // Create channel from input file provided through params.kmers
+    //
+    ch_kmers = Channel.empty()
+    if (kmers) {
+        Channel
+            .fromList(samplesheetToList(kmers, "${projectDir}/assets/schema_kmers.json"))
+            .map { meta, db ->
+                def id = "${meta.sample}_${meta.type}"
+                [ meta + [id: id], db ]
+            }
+            .set { ch_kmers }
+    }
 
     emit:
-    samplesheet = ch_samplesheet
-    versions    = ch_versions
+    assemblies = ch_assemblies
+    reads      = ch_reads
+    kmers      = ch_kmers
+    versions   = ch_versions
 }
 
 /*

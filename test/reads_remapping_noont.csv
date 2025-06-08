@@ -1,0 +1,17 @@
+sample,type,runid,library,fastq_1,fastq_2
+Pup3-NMR,hifi,run1,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/pacbio_hifi/Pup3-NMR/m84046_230804_201446_s1.hifi_reads.bc2006.fq.gz,
+Pup3-NMR,hifi,run2,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/pacbio_hifi/Pup3-NMR/m84046_230808_215914_s3.hifi_reads.bc2006.fq.gz,
+Pup3-NMR,hifi,run3,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/pacbio_hifi/Pup3-NMR/m84046_230808_222937_s4.hifi_reads.bc2006.fq.gz,
+Pup3-NMR,hifi,run4,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/pacbio_hifi/Pup3-NMR/m84046_230812_020816_s1.hifi_reads.bc2006.fq.gz,
+Pup3-NMR,hifi,run5,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/pacbio_hifi/Pup3-NMR/m84046_230812_023838_s2.hifi_reads.bc2006.fq.gz,
+Queen-NMR,hifi,run1,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/pacbio_hifi/Queen-NMR/m84046_230812_023838_s2.hifi_reads.bc2004.fq.gz,
+Queen-NMR,hifi,run2,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/pacbio_hifi/Queen-NMR/m84046_230812_020816_s1.hifi_reads.bc2004.fq.gz,
+Queen-NMR,hifi,run3,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/pacbio_hifi/Queen-NMR/m84046_230804_201446_s1.hifi_reads.bc2004.fq.gz,
+Queen-NMR,hifi,run4,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/pacbio_hifi/Queen-NMR/m84046_230808_222937_s4.hifi_reads.bc2004.fq.gz,
+Queen-NMR,hifi,run5,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/pacbio_hifi/Queen-NMR/m84046_230808_215914_s3.hifi_reads.bc2004.fq.gz,
+Dad-NMR,hifi,run1,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/pacbio_hifi/Dad-NMR/m84046_230808_215914_s3.hifi_reads.bc2005.fq.gz,
+Dad-NMR,hifi,run2,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/pacbio_hifi/Dad-NMR/m84046_230812_023838_s2.hifi_reads.bc2005.fq.gz,
+Dad-NMR,hifi,run3,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/pacbio_hifi/Dad-NMR/m84046_230804_201446_s1.hifi_reads.bc2005.fq.gz,
+Dad-NMR,hifi,run4,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/pacbio_hifi/Dad-NMR/m84046_230812_020816_s1.hifi_reads.bc2005.fq.gz,
+Dad-NMR,hifi,run5,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/pacbio_hifi/Dad-NMR/m84046_230808_222937_s4.hifi_reads.bc2005.fq.gz,
+SRR8204318,hic,run1,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/illumina_hic/SRR8204318_1.fastq.gz,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/illumina_hic/SRR8204318_2.fastq.gz

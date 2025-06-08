@@ -1,0 +1,6 @@
+sample,type,runid,library,fastq_1,fastq_2
+Pup3-NMR,ont,run1,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/ont_ul/Pup3-NMR_r9.4.1_q7_l30000.fastq.gz,
+Pup3-NMR,ont,run2,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/ont_ul/Pup3-NMR_r10.4.1_q10_l30000.fastq.gz,
+Queen-NMR,ont,run1,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/ont_ul/Queen-NMR_r9.4.1_q7_l30000.fastq.gz,
+Dad-NMR,ont,run1,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/ont_ul/Dad-NMR_r9.4.1_q7_l30000.fastq.gz,
+Dad-NMR,ont,run2,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/ont_ul/Dad-NMR_r10.4.1_q10_l30000.fastq.gz,

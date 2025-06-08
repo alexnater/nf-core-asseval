@@ -10,17 +10,43 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir"],
+            "required": ["assemblies", "reads", "outdir"],
             "properties": {
-                "input": {
+                "assemblies": {
                     "type": "string",
                     "format": "file-path",
                     "exists": true,
-                    "schema": "assets/schema_input.json",
+                    "schema": "assets/schema_assemblies.json",
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.csv$",
-                    "description": "Path to comma-separated file containing information about the samples in the experiment.",
-                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. See [usage docs](https://nf-co.re/asseval/usage#samplesheet-input).",
+                    "description": "Path to comma-separated file containing information about the assemblies.",
+                    "help_text": "You will need to create a design file with information about the assemblies in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row.",
+                    "fa_icon": "fas fa-file-csv"
+                },
+                "reads": {
+                    "type": "string",
+                    "mimetype": "text/csv",
+                    "pattern": "^(\\S+\\.csv,?)*",
+                    "description": "Path to comma-separated file containing information about the raw read data. Multiple paths separated with commas possible.",
+                    "help_text": "You will need to create a design file with information about the read data in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 6 columns, and a header row.",
+                    "fa_icon": "fas fa-file-csv"
+                },
+                "steps": {
+                    "type": "string",
+                    "description": "Steps to run.",
+                    "fa_icon": "fas fa-toolbox",
+                    "help_text": "Multiple steps separated with commas. Possible values: qc, evaluation, mapping, stats, variant_calling, report",
+                    "pattern": "^((qc|evaluation|mapping|stats|variant_calling|report)?,?)*"
+                },
+                "kmers": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "schema": "assets/schema_kmers.json",
+                    "mimetype": "text/csv",
+                    "pattern": "^\\S+\\.csv$",
+                    "description": "Path to comma-separated file containing information about the k-mer databases.",
+                    "help_text": "Optional design file with information about preexisting k-mer databases. It has to be a comma-separated file with 3 columns, and a header row.",
                     "fa_icon": "fas fa-file-csv"
                 },
                 "outdir": {
@@ -43,42 +69,94 @@
                 }
             }
         },
-        "reference_genome_options": {
-            "title": "Reference genome options",
+        "main_options": {
+            "title": "Main options",
             "type": "object",
-            "fa_icon": "fas fa-dna",
-            "description": "Reference genome related files and options required for the workflow.",
+            "description": "Most common options used for the pipeline",
+            "default": "",
             "properties": {
-                "genome": {
+                "steps": {
                     "type": "string",
-                    "description": "Name of iGenomes reference.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`. \n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
+                    "description": "Steps to run.",
+                    "fa_icon": "fas fa-toolbox",
+                    "help_text": "Multiple steps separated with commas. Possible values: qc, evaluation, mapping, stats, variant_calling, report",
+                    "pattern": "^((qc|evaluation|mapping|stats|variant_calling|report)?,?)*"
                 },
-                "fasta": {
+                "kmer_size": {
+                    "type": "integer",
+                    "description": "K-mer length for assembly evaluation.",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "default": 21
+                },
+                "busco_lineage": {
                     "type": "string",
-                    "format": "file-path",
-                    "exists": true,
-                    "mimetype": "text/plain",
-                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
-                    "description": "Path to FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
-                    "fa_icon": "far fa-file-code"
+                    "description": "Lineage for BUSCO analysis.",
+                    "fa_icon": "fas fa-toolbox"
                 },
-                "igenomes_ignore": {
-                    "type": "boolean",
-                    "description": "Do not load the iGenomes reference config.",
-                    "fa_icon": "fas fa-ban",
-                    "hidden": true,
-                    "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`."
-                },
-                "igenomes_base": {
+                "busco_lineages_path": {
                     "type": "string",
                     "format": "directory-path",
-                    "description": "The base path to the igenomes reference files",
-                    "fa_icon": "fas fa-ban",
-                    "hidden": true,
-                    "default": "s3://ngi-igenomes/igenomes/"
+                    "fa_icon": "fas fa-folder-open",
+                    "description": "Path to directory with BUSCO lineage data."
+                },
+                "trim_length": {
+                    "type": "integer",
+                    "description": "Length in base pairs to trim from beginning and end of read.",
+                    "minimum": 0,
+                    "maximum": 30,
+                    "default": 0
+                },
+                "store_trimmed": {
+                    "type": "boolean",
+                    "description": "Store trimmed reads in outdir?",
+                    "default": false
+                },
+                "mismatch_penalty": {
+                    "type": "integer",
+                    "description": "Mismatch penalty for Hi-C single-end mapping.",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "default": 4
+                },
+                "mapq_filter": {
+                    "type": "integer",
+                    "description": "Mapping quality filter for Hi-C read merging.",
+                    "minimum": 0,
+                    "maximum": 40,
+                    "default": 0
+                },
+                "publish_bam": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Should BAM files from the mapping step be published?"
+                },
+                "project": {
+                    "type": "string",
+                    "pattern": "^p\\d+$",
+                    "description": "Project number for accounting."
+                },
+                "min_contig_length": {
+                    "type": "integer",
+                    "description": "Minimum length of contigs for variant calling.",
+                    "minimum": 0,
+                    "default": 1000000
+                },
+                "min_coverage": {
+                    "type": "integer",
+                    "description": "Minimum sequencing depth to call a variant.",
+                    "minimum": 0,
+                    "default": 10
+                },
+                "genotype_model": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "The path to directory containing a Clair3 model."
+                },
+                "glnexus_config": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "The path to directory containing a config file for GLnexus."
                 }
             }
         },
@@ -225,9 +303,6 @@
     "allOf": [
         {
             "$ref": "#/$defs/input_output_options"
-        },
-        {
-            "$ref": "#/$defs/reference_genome_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"

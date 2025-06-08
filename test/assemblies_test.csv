@@ -1,0 +1,11 @@
+sample,type,fasta,gtf,yaml
+Pup3-NMR,primary,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/assemblies/hifiasm/Pup3-NMR/Pup3-NMR.asm.p_ctg.fa,,
+Pup3-NMR,hap1,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/assemblies/hifiasm/Pup3-NMR_triobinned_k31/Pup3-NMR.asm.dip.hap1.p_ctg.fa,,
+Pup3-NMR,hap2,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/assemblies/hifiasm/Pup3-NMR_triobinned_k31/Pup3-NMR.asm.dip.hap2.p_ctg.fa,,
+Pup3-NMR,primary_unfiltered,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/assemblies/hifiasm/Pup3-NMR_unfiltered/Pup3-NMR.asm.p_ctg.fa,,
+Pup3-NMR,hap1_unfiltered,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/assemblies/hifiasm/Pup3-NMR_unfiltered_triobinned_k31/Pup3-NMR.asm.dip.hap1.p_ctg.fa,,
+Pup3-NMR,hap2_unfiltered,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/assemblies/hifiasm/Pup3-NMR_unfiltered_triobinned_k31/Pup3-NMR.asm.dip.hap2.p_ctg.fa,,
+Queen-NMR,primary,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/assemblies/hifiasm/Queen-NMR/Queen-NMR.asm.p_ctg.fa,,
+Queen-NMR,primary_unfiltered,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/assemblies/hifiasm/Queen-NMR_unfiltered/Queen-NMR.asm.p_ctg.fa,,
+Dad-NMR,primary,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/assemblies/hifiasm/Dad-NMR/Dad-NMR.asm.p_ctg.fa,,
+Dad-NMR,primary_unfiltered,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/assemblies/hifiasm/Dad-NMR_unfiltered/Dad-NMR.asm.p_ctg.fa,,

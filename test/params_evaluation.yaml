@@ -1,0 +1,22 @@
+# General settings:
+#-----------------------
+project: "p2024-0022"
+outdir: "results_evaluation"
+custom_config_base: "/data/users/anater/nf-core-configs"
+
+# Sample details:
+#-----------------------
+assemblies: "test/assemblies_scaffolded.csv"
+reads: "test/reads_remapping.csv"
+kmers: "test/kmers.csv"
+
+# Workflow settings:
+#-----------------------
+steps: "qc,evaluation"
+kmer_size: 31
+busco_lineage: "mammalia_odb10"
+busco_lineages_path: "/data/projects/p2024-0022_naked_mole_rat_genome_assembly/downstream_analyses/busco/busco_downloads"
+mismatch_penalty: 4
+mapq_filter: 0
+min_coverage: 10
+glnexus_config: "assets/clair3.yml"
