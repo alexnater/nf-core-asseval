@@ -370,7 +370,7 @@ def main(argv=None):
             logger.info(f"Working on region {region} ...")
             depths = read_depth_array(args.depth, region, samples, args.interval)
             if len(args.vcf) == 1:
-                _, variants = read_vcf(args.vcf, region, samples, args.include_indels, args.interval)
+                _, variants = read_vcf(args.vcf[0], region, samples, args.include_indels, args.interval)
             else:
                 _, variants = read_vcf_single(args.vcf, region, samples, args.include_indels, args.interval)
             winvalues = calculate_window_stats(region, depths, variants, refseq, args.windowsize, \

@@ -1,2 +1,4 @@
 sample,type,runid,library,fastq_1,fastq_2
 SRR8204318,hic,run1,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/illumina_hic/SRR8204318_1.fastq.gz,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/illumina_hic/SRR8204318_2.fastq.gz
+WL2949,hic,run1,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/illumina_hic/WL2949_none_hypothal_NA_none_hglaber_NA_Basal_TCAG1_R1_001.fastq.gz,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/illumina_hic/WL2949_none_hypothal_NA_none_hglaber_NA_Basal_TCAG1_R2_001.fastq.gz
+WL2950,hic,run1,A,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/illumina_hic/WL2950_none_hypothal_NA_none_hglaber_NA_Basal_TCAG1_R1_001.fastq.gz,/data/projects/p2024-0022_naked_mole_rat_genome_assembly/raw_data/illumina_hic/WL2950_none_hypothal_NA_none_hglaber_NA_Basal_TCAG1_R2_001.fastq.gz
