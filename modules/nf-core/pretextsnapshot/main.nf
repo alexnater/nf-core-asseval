@@ -4,8 +4,8 @@ process PRETEXTSNAPSHOT {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/pretextsnapshot:0.0.4--h7d875b9_0':
-        'biocontainers/pretextsnapshot:0.0.4--h7d875b9_0' }"
+        'https://depot.galaxyproject.org/singularity/pretextsnapshot:0.0.5--h9948957_0':
+        'biocontainers/pretextsnapshot:0.0.5--h9948957_0' }"
 
     input:
     tuple val(meta), path(pretext_map)
@@ -19,7 +19,7 @@ process PRETEXTSNAPSHOT {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}."
+    def prefix = task.ext.prefix ?: "${meta.id}_"
     """
     PretextSnapshot \\
         $args \\
@@ -27,6 +27,15 @@ process PRETEXTSNAPSHOT {
         --prefix $prefix \\
         --folder .
 
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        pretextsnapshot: \$(echo \$(PretextSnapshot --version 2>&1) | sed 's/^.*PretextSnapshot Version //' )
+    END_VERSIONS
+    """
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}_"
+    """
+    touch ${prefix}scaffold_{1,2,3,4}.png
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         pretextsnapshot: \$(echo \$(PretextSnapshot --version 2>&1) | sed 's/^.*PretextSnapshot Version //' )

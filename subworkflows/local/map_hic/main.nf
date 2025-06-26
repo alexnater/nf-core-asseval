@@ -12,6 +12,7 @@ include { FASTP                      } from '../../../modules/nf-core/fastp'
 include { BWA_MAP_FILTER             } from '../../../modules/local/bwa/map_filter'
 include { GATK4_MARKDUPLICATES       } from '../../../modules/nf-core/gatk4/markduplicates'
 include { PRETEXTMAP                 } from '../../../modules/nf-core/pretextmap'
+include { PRETEXTSNAPSHOT            } from '../../../modules/nf-core/pretextsnapshot'
 include { YAHS                       } from '../../../modules/nf-core/yahs'
 
 /*
@@ -129,6 +130,14 @@ workflow MAP_HIC {
     )
     ch_versions = ch_versions.mix(PRETEXTMAP.out.versions.first())
 
+    //
+    // MODULE: Run pretextsnapshot
+    //
+    PRETEXTSNAPSHOT (
+        PRETEXTMAP.out.pretext
+    )
+    ch_versions = ch_versions.mix(PRETEXTSNAPSHOT.out.versions.first())
+
     // combine bam files with fasta reference and fasta index:
     ch_bam_bai
         .map { meta, bam, bai -> [ meta.ref, meta, bam, bai ] }
@@ -153,7 +162,7 @@ workflow MAP_HIC {
     ch_versions = ch_versions.mix(YAHS.out.versions.first())
 
     emit:
-    bam_bai  = ch_bam_bai                // channel: [ val(meta), path(bam), path(bai) ]
-    pretext  = PRETEXTMAP.out.pretext    // channel: [ val(meta), path(pretext) ]
-    versions = ch_versions               // channel: [ versions.yml ]
+    bam_bai  = ch_bam_bai                 // channel: [ val(meta), path(bam), path(bai) ]
+    pretext  = PRETEXTMAP.out.pretext     // channel: [ val(meta), path(pretext) ]
+    versions = ch_versions                // channel: [ versions.yml ]
 }

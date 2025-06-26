@@ -4,4 +4,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - bioconda::pretextsnapshot=0.0.4
+  - bioconda::deeptools=3.5.5
+  - bioconda::samtools=1.20

@@ -11,7 +11,7 @@ reads: "test/reads_hic.csv"
 
 # Workflow settings:
 #-----------------------
-steps: "hic,stats"
+steps: "mapping,stats"
 kmer_size: 31
 busco_lineage: "mammalia_odb10"
 busco_lineages_path: "/data/projects/p2024-0022_naked_mole_rat_genome_assembly/downstream_analyses/busco/busco_downloads"
