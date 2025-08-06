@@ -148,28 +148,3 @@ workflow VARIANT_CALLING {
     bam_bai  = ch_calls.bam_bai             // channel: [ meta, [bam], [bai] ]
     versions = ch_versions                  // channel: [ path(versions.yml) ]
 }
-
-
-
-
-
-/*
-    //
-    // MODULE: Run GATK4
-    //
-    CLAIR3.out.gvcf
-        .map { meta, gvcf, tbi -> [meta.id, gvcf, tbi] }
-        .groupTuple()
-        .set { ch_genotyping }
-
-    GATK4_GENOTYPEGVCFS (
-        ch_genotyping,
-        false,
-        fasta,
-        fai,
-        dict,
-        [],
-        []
-    )
-    ch_versions = ch_versions.mix(GATK4_GENOTYPEGVCFS.out.versions.first())
-*/
