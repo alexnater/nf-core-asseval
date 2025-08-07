@@ -199,7 +199,7 @@ workflow ASSEVAL {
         // SUBWORKFLOW: variant_calling
         //
         VARIANT_CALLING (
-            ch_bam_bai.filter { meta, bam, bai -> meta.type == 'hifi' },
+            ch_bam_bai.filter { meta, bam, bai -> meta.type == 'hifi' || meta.type == 'ont' },
             PREPARE_GENOMES.out.genomes
                 .map { meta, fasta, fai, dict, gtf, index -> [ meta, fasta, fai ] },
             [],
@@ -224,27 +224,29 @@ workflow ASSEVAL {
 
         // Generate window-wise stats
         BAM_STATS.out.depth
-            .filter { meta, summary -> meta.type == 'hifi' }
-            .map { meta, summary -> [ groupKey(meta.ref, meta.samples_per_type), [ meta.sample, summary ] ] }
+            .filter { meta, summary -> meta.type == 'hifi' || meta.type == 'ont' }
+            .map { meta, summary -> [ groupKey([ref: meta.ref, type: meta.type], meta.samples_per_type), [ meta.sample, summary ] ] }
             .groupTuple(sort: { a, b -> a[0] <=> b[0] })
-            .map { ref, tuples -> [ ref.target, tuples.collect { it[0] }, tuples.collect { it[1] } ] }
+            .map { meta, tuples -> [ meta.target, tuples.collect { it[0] }, tuples.collect { it[1] } ] }
             .set { ch_summaries }
 
         // Join depth and vcf files per reference
         BAM_DEPTH.out.depth
-            .filter { meta, depth, tbi -> meta.type == 'hifi' }
-            .map { meta, depth, tbi -> [ meta.ref, meta, depth, tbi ] }
+            .filter { meta, depth, tbi -> meta.type == 'hifi' || meta.type == 'ont' }
+            .map { meta, depth, tbi -> [ [ref: meta.ref, type: meta.type], meta, depth, tbi ] }
             .join(VARIANT_CALLING.out.ind_vcf_tbi
-                    .filter { meta, vcf, tbi -> meta.type == 'hifi' && meta.caller == 'clair3' }
-                    .map { meta, vcf, tbi -> [ meta.ref, vcf, tbi ] },
+                    .filter { meta, vcf, tbi -> (meta.type == 'hifi' || meta.type == 'ont') && meta.caller == 'clair3' }
+                    .map { meta, vcf, tbi -> [ [ref: meta.ref, type: meta.type], vcf, tbi ] },
                 failOnDuplicate: true,
                 failOnMismatch: true
             )
             .join(ch_summaries, failOnDuplicate: true, failOnMismatch: true)
-            .join(PREPARE_GENOMES.out.genomes
+            .map { ref_type, meta, depth, dtbi, vcf, tbi, samples, summaries ->
+                [ meta.ref, meta, depth, dtbi, vcf, tbi, samples, summaries ]
+            }
+            .combine(PREPARE_GENOMES.out.genomes
                     .map { meta, fasta, fai, dict, gtf, index -> [ meta.id, meta, fasta, fai ] },
-                failOnDuplicate: true,
-                failOnMismatch: true
+                by: 0
             )
             .multiMap { ref, meta, depth, dtbi, vcf, tbi, samples, summaries, meta2, fasta, fai ->
                 input:     [ [id: 'winstats', type: meta.type, ref: ref, samples: tuple(samples)], depth, dtbi, vcf, tbi, summaries ]
