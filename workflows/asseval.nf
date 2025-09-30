@@ -120,7 +120,8 @@ workflow ASSEVAL {
             "genome",
             params.busco_lineage,
             busco_lineages_dir,
-            []
+            [],
+            true
         )
         ch_versions = ch_versions.mix(BUSCO_BUSCO.out.versions.first())
     }
