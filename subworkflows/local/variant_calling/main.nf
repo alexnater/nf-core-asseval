@@ -53,20 +53,24 @@ workflow VARIANT_CALLING {
             meta.type == 'hifi' ? 'hifi' : meta.type == 'ont' ? 'ont' : 'ilmn'
         },
         model_file
-    ).gvcf
-     .join(ch_mapped.bam_bai, failOnDuplicate:true, failOnMismatch:true)
-     .map { meta, gvcf, bam, bai ->
-        def new_meta = [
-            id: "joint_${meta.ref}",
-            type: meta.type,
-            ref: meta.ref,
-            caller: 'clair3'
-        ]
-        [ groupKey(new_meta, meta.samples_per_type), meta.sample, gvcf, bam, bai ]
-    }
-     .groupTuple(sort: true)
-     .map { meta, samples, gvcfs, bams, bais -> [ meta.target + [samples: tuple(samples)], gvcfs, bams, bais ] }
-     .set { ch_from_clair3 }
+    )
+        .gvcf
+        .join(ch_mapped.bam_bai, failOnDuplicate:true, failOnMismatch:true)
+        .map { meta, gvcf, bam, bai ->
+            def new_meta = [
+                id: "joint_${meta.ref}",
+                type: meta.type,
+                ref: meta.ref,
+                caller: 'clair3'
+            ]
+            [ groupKey(new_meta, meta.samples_per_type), [ meta.sample, gvcf, bam, bai ] ]
+        }
+        .groupTuple(sort: { a, b -> a[0] <=> b[0] })
+        .map { meta, tuples -> 
+            def (samples, gvcfs, bams, bais) = tuples.transpose()
+            [ meta.target + [samples: tuple(samples)], gvcfs, bams, bais ]
+        }
+        .set { ch_from_clair3 }
     ch_versions = ch_versions.mix(CLAIR3.out.versions.first())
 
     //
@@ -86,11 +90,14 @@ workflow VARIANT_CALLING {
                 ref: meta.ref,
                 caller: 'clair3'
             ]
-            [ groupKey(new_meta, meta.samples_per_type), meta.sample, vcf, tbi ]
-    }
-     .groupTuple(sort: true)
-     .map { meta, samples, vcfs, tbis -> [ meta.target + [samples: tuple(samples)], vcfs, tbis ] }
-     .set { ind_vcf_tbi }
+            [ groupKey(new_meta, meta.samples_per_type), [ meta.sample, vcf, tbi ] ]
+        }
+        .groupTuple(sort: { a, b -> a[0] <=> b[0] })
+        .map { meta, tuples -> 
+            def (samples, vcfs, tbis) = tuples.transpose()
+            [ meta.target + [samples: tuple(samples)], vcfs, tbis ]
+        }
+        .set { ind_vcf_tbi }
 
 /*
     //
@@ -104,20 +111,24 @@ workflow VARIANT_CALLING {
         ch_mapped.fasta_fai.map { meta, fasta, fai -> [ meta, fai ] },
         [ [id:'ref'], [] ],
         [ [:], [] ]
-    ).gvcf
-     .join(ch_mapped.bam_bai, failOnDuplicate:true, failOnMismatch:true)
-     .map { meta, gvcf, bam, bai ->
-        def new_meta = [
-            id: "joint_${meta.ref}",
-            type: meta.type,
-            ref: meta.ref,
-            caller: 'deepvariant'
-        ]
-        [ groupKey(new_meta, meta.samples_per_type), meta.sample, gvcf, bam, bai ]
-    }
-     .groupTuple(sort: true)
-     .map { meta, samples, gvcfs, bams, bais -> [ meta + [samples: tuple(samples)], gvcfs, bams, bais ] }
-     .set { ch_from_dv }
+    )
+        .gvcf
+        .join(ch_mapped.bam_bai, failOnDuplicate:true, failOnMismatch:true)
+        .map { meta, gvcf, bam, bai ->
+            def new_meta = [
+                id: "joint_${meta.ref}",
+                type: meta.type,
+                ref: meta.ref,
+                caller: 'deepvariant'
+            ]
+            [ groupKey(new_meta, meta.samples_per_type), [ meta.sample, gvcf, bam, bai ] ]
+        }
+        .groupTuple(sort: { a, b -> a[0] <=> b[0] })
+        .map { meta, tuples -> 
+            def (samples, gvcfs, bams, bais) = tuples.transpose()
+            [ meta.target + [samples: tuple(samples)], gvcfs, bams, bais ]
+        }
+        .set { ch_from_dv }
     ch_versions = ch_versions.mix(DEEPVARIANT_RUNDEEPVARIANT.out.versions.first())
 */
 

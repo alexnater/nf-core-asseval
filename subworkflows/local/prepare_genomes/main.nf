@@ -51,7 +51,7 @@ workflow PREPARE_GENOMES {
         .join(SAMTOOLS_FAIDX.out.fai, failOnDuplicate: true, failOnMismatch: true)
         .mix(ch_to_faidx.with_fai)
         .branch { meta, fasta, fai ->
-            def dict = file("${fasta}.dict")
+            def dict = file("${fasta.baseName}.dict")
             with_dict: dict.exists()
                 return [ meta, fasta, fai, dict ]
             no_dict: true
