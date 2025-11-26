@@ -68,21 +68,20 @@ def calculate_window_stats(
     while winstart < region.end:
         winend = winstart + windowsize
         winend = winend if winend < region.end else region.end
+        gc, gc_skew, at_skew = float('nan'), float('nan'), float('nan')
         if not refseq is None:
             seqstart = winstart - region.start + 1
             seqend = winend - region.start + 1
             counter = Counter(refseq[seqstart:seqend].upper())
             totvalid = (counter['A'] + counter['T'] + counter['G'] + counter['C'])
-            gc = (counter['G'] + counter['C']) / totvalid if totvalid > 0 else float('nan')
+            if totvalid > 0:
+                gc = (counter['G'] + counter['C']) / totvalid
             if (counter['G'] + counter['C']) > 0:
                 gc_skew = (counter['G'] - counter['C']) / (counter['G'] + counter['C'])
                 cgcs += gc_skew
             if (counter['A'] + counter['T']) > 0:
                 at_skew = (counter['A'] - counter['T']) / (counter['A'] + counter['T'])
                 cats += at_skew
-        else:
-            gc = float('nan')
-            gc_skew, at_skew = float('nan'), float('nan')
         nvalid = arr.array('L', [0] * depths.ncols)
         covsums = arr.array('L', [0] * depths.ncols)
         hetsums = arr.array('L', [0] * depths.ncols)
