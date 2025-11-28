@@ -80,7 +80,10 @@ workflow {
         params.outdir,
         params.assemblies,
         params.reads,
-        params.kmers
+        params.kmers,
+        params.help,
+        params.help_full,
+        params.show_hidden
     )
 
     //
