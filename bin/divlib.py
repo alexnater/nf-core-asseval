@@ -411,7 +411,7 @@ def get_ancestral_sequence(
         raise ValueError("get_ancestral_sequence requires a valid region!")
     if not len(refseq) == region.length:
         raise ValueError(f"reference sequence length {len(refseq)} doesn't match provided region {region.length}!")
-    ancseq = arr.array('u', 'N' * region.length)
+    ancseq = arr.array('w', 'N' * region.length)
     for offset, refbase in enumerate(refseq):
         pos = region.start + offset
         if depths.get(offset, anc_idx) < mindepth: continue
@@ -508,13 +508,16 @@ def read_depth_array(
             logger.error(e)
             sys.exit(1)
         processed = 0
-        for row in depth_in.fetch(region.chrom, region.start-1, region.end, parser=asTuple()):
-            pos = int(row[1])
-            for sidx, sample in enumerate(samples):
-                depth = int(row[columns_by_id[sample]])
-                depths.set_position(pos, sidx, depth)
-            processed += 1
-            if not processed % interval: logger.info(f"Processed {processed} lines of depth file.")
+        try: # Pysam throws a ValueError if the contig is not found in the tabix file
+            for row in depth_in.fetch(region.chrom, region.start-1, region.end, parser=asTuple()):
+                pos = int(row[1])
+                for sidx, sample in enumerate(samples):
+                    depth = int(row[columns_by_id[sample]])
+                    depths.set_position(pos, sidx, depth)
+                processed += 1
+                if not processed % interval: logger.info(f"Processed {processed} lines of depth file.")
+        except ValueError as e:
+            logger.error(f"Couldn't find contig {region.chrom} in depth file!")
         logger.info(f"Processed {processed} lines of depth file.")
     return depths
 
