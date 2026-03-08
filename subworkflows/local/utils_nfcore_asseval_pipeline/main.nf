@@ -102,7 +102,7 @@ workflow PIPELINE_INITIALISATION {
     //
     // Create channel from input file provided through params.assemblies
     //
-    Channel
+    channel
         .fromList(samplesheetToList(assemblies, "${projectDir}/assets/schema_assemblies.json"))
         .map { meta, fasta, gtf, yaml ->
             def id = "${meta.sample}_${meta.type}"
@@ -113,56 +113,58 @@ workflow PIPELINE_INITIALISATION {
     //
     // Create channel from input files provided through params.reads
     //
-    ch_reads = Channel.empty()
-    reads.split(',').each { reads_file ->
-        Channel
-            .fromList(samplesheetToList(reads_file, "${projectDir}/assets/schema_reads.json"))
-            // group by sample:
-            .map { meta, fastq_1, fastq_2 ->
-                def id = "${meta.sample}_${meta.run}"
-                def library = meta.lib ?: "A"
-                if (!fastq_2) {
-                    return [ meta + [ id:id, single_end:true, lib:library ], [ fastq_1 ] ]
-                } else {
-                    return [ meta + [ id:id, single_end:false, lib:library ], [ fastq_1, fastq_2 ] ]
+    ch_reads = channel.empty()
+    if (reads) {
+        reads.split(',').each { reads_file ->
+            channel
+                .fromList(samplesheetToList(reads_file, "${projectDir}/assets/schema_reads.json"))
+                // group by sample:
+                .map { meta, fastq_1, fastq_2 ->
+                    def id = "${meta.sample}_${meta.run}"
+                    def library = meta.lib ?: "A"
+                    if (!fastq_2) {
+                        return [ meta + [ id:id, single_end:true, lib:library ], [ fastq_1 ] ]
+                    } else {
+                        return [ meta + [ id:id, single_end:false, lib:library ], [ fastq_1, fastq_2 ] ]
+                    }
                 }
+                .mix(ch_reads)
+                .set { ch_reads }
+        }
+
+        // Annotate channel with some statistics
+        ch_reads
+            // group by sample + type:
+            .map { meta, infiles -> return [ meta.subMap(['sample', 'type']), meta, infiles ] }
+            .groupTuple()
+            .map { gkey, metas, infiles ->
+                return [ metas.collect { it + [runs_per_sample: infiles.size()] }, infiles ]
             }
-            .mix(ch_reads)
+            .transpose()
+            // group by sample + type + lib:
+            .map { meta, infiles -> return [ meta.subMap(['sample', 'type', 'lib']), meta, infiles ] }
+            .groupTuple()
+            .map { gkey, metas, infiles ->
+                return [ metas.collect { it + [runs_per_lib: infiles.size()] }, infiles ]
+            }
+            .transpose()
+            // group by type:
+            .map { meta, infiles -> return [ meta.subMap(['type']), meta, infiles ] }
+            .groupTuple()
+            .map { gkey, metas, infiles ->
+                def count = metas.toUnique { meta -> meta.sample }.size()
+                return [ metas.collect { it + [samples_per_type: count] }, infiles ]
+            }
+            .transpose()
             .set { ch_reads }
     }
-
-    // Annotate channel with some statistics
-    ch_reads
-        // group by sample + type:
-        .map { meta, infiles -> return [ meta.subMap(['sample', 'type']), meta, infiles ] }
-        .groupTuple()
-        .map { gkey, metas, infiles ->
-            return [ metas.collect { it + [runs_per_sample: infiles.size()] }, infiles ]
-        }
-        .transpose()
-        // group by sample + type + lib:
-        .map { meta, infiles -> return [ meta.subMap(['sample', 'type', 'lib']), meta, infiles ] }
-        .groupTuple()
-        .map { gkey, metas, infiles ->
-            return [ metas.collect { it + [runs_per_lib: infiles.size()] }, infiles ]
-        }
-        .transpose()
-        // group by type:
-        .map { meta, infiles -> return [ meta.subMap(['type']), meta, infiles ] }
-        .groupTuple()
-        .map { gkey, metas, infiles ->
-            def count = metas.toUnique { meta -> meta.sample }.size()
-            return [ metas.collect { it + [samples_per_type: count] }, infiles ]
-        }
-        .transpose()
-        .set { ch_reads }
 
     //
     // Create channel from input file provided through params.kmers
     //
-    ch_kmers = Channel.empty()
+    ch_kmers = channel.empty()
     if (kmers) {
-        Channel
+        channel
             .fromList(samplesheetToList(kmers, "${projectDir}/assets/schema_kmers.json"))
             .map { meta, db ->
                 def id = "${meta.sample}_${meta.type}"

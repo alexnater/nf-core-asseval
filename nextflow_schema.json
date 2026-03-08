@@ -10,7 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["assemblies", "reads", "outdir"],
+            "required": ["assemblies", "outdir"],
             "properties": {
                 "assemblies": {
                     "type": "string",
@@ -35,8 +35,8 @@
                     "type": "string",
                     "description": "Steps to run.",
                     "fa_icon": "fas fa-toolbox",
-                    "help_text": "Multiple steps separated with commas. Possible values: qc, evaluation, mapping, stats, variant_calling, report",
-                    "pattern": "^((qc|evaluation|mapping|stats|variant_calling|report)?,?)*"
+                    "help_text": "Multiple steps separated with commas. Possible values: qc, evaluation, mappability, mapping, stats, variant_calling, report",
+                    "pattern": "^((qc|evaluation|mappability|mapping|stats|variant_calling|report)?,?)*"
                 },
                 "kmers": {
                     "type": "string",
@@ -99,6 +99,13 @@
                     "format": "directory-path",
                     "fa_icon": "fas fa-folder-open",
                     "description": "Path to directory with BUSCO lineage data."
+                },
+                "kmer_sizes": {
+                    "type": "string",
+                    "description": "K-mer lengths for mappability calculation.",
+                    "fa_icon": "fas fa-toolbox",
+                    "help_text": "Multiple integer values separated with commas.",
+                    "pattern": "^([0-9]+,?)*"
                 },
                 "trim_length": {
                     "type": "integer",

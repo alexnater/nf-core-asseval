@@ -13,6 +13,7 @@ include { GENERATE_EAR           } from '../modules/local/generate_ear'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { PREPARE_GENOMES        } from '../subworkflows/local/prepare_genomes'
 include { RUN_KMER_FK            } from '../subworkflows/local/run_kmer_fk'
+include { MAPPABILITY            } from '../subworkflows/local/mappability'
 include { MAP_HIC                } from '../subworkflows/local/map_hic'
 include { MAP_LONGREADS          } from '../subworkflows/local/map_longreads'
 include { MAP_ILLUMINA           } from '../subworkflows/local/map_illumina'
@@ -30,15 +31,6 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_asse
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-def steps = params.steps ? params.steps.split(',') : []
-if ((steps.contains('stats') || steps.contains('variant_calling')) && !steps.contains('mapping')) {
-    steps << "mapping"
-}
-def busco_lineages_dir = file(params.busco_lineages_path, type: 'dir', checkIfExists: true)
-def model_file = params.genotype_model ? file(params.genotype_model, checkIfExists: true) : []
-def config_file = file(params.glnexus_config, checkIfExists: true)
-
-
 workflow ASSEVAL {
 
     take:
@@ -50,13 +42,20 @@ workflow ASSEVAL {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
+    def steps = params.steps ? params.steps.split(',') : []
+    if ((steps.contains('stats') || steps.contains('variant_calling')) && !steps.contains('mapping')) {
+        steps << "mapping"
+    }
+
     //
     // SUBWORKFLOW: prepare_genomes
     // 
     PREPARE_GENOMES ( 
         ch_assemblies.map { meta, fasta, gtf, yaml -> [ meta, fasta, gtf ] },
         ch_reads
-    )
+    ).genomes
+    .map { meta, fasta, fai, dict, gtf, index -> [ meta, fasta, fai ] }
+    .set { ch_fasta_fai }
     ch_versions = ch_versions.mix(PREPARE_GENOMES.out.versions)
 
     if (steps.contains('qc')) {
@@ -70,7 +69,9 @@ workflow ASSEVAL {
     }
 
     if (steps.contains('evaluation')) {
-        
+
+        def busco_lineages_dir = file(params.busco_lineages_path, type: 'dir', checkIfExists: true)
+
         // Group assemblies by type
         ch_assemblies
             .map { meta, fasta, gtf, yaml ->
@@ -104,8 +105,7 @@ workflow ASSEVAL {
         //    
         RUN_KMER_FK (
             ch_reads.filter { meta, fastq -> meta.type == 'hifi' },
-            PREPARE_GENOMES.out.genomes
-                .map { meta, fasta, fai, dict, gtf, index -> [ meta, fasta, fai ] },
+            ch_fasta_fai,
             ch_kmers,
             params.kmer_size
         )
@@ -125,6 +125,20 @@ workflow ASSEVAL {
         ch_versions = ch_versions.mix(BUSCO_BUSCO.out.versions.first())
     }
 
+    if (steps.contains('mappability')) {
+
+        def kmer_sizes = params.kmer_sizes ? params.kmer_sizes.split(',').collect { it.toInteger() } : []
+
+        //
+        // SUBWORKFLOW: mappability
+        //
+        MAPPABILITY (
+            ch_fasta_fai,
+            kmer_sizes
+        )
+        ch_versions = ch_versions.mix(MAPPABILITY.out.versions)
+    }
+
     if (steps.contains('mapping')) {
 
         // Branch reads by read type:
@@ -139,8 +153,7 @@ workflow ASSEVAL {
         // 
         MAP_LONGREADS (
             ch_reads_bytype.longreads,
-            PREPARE_GENOMES.out.genomes
-                .map { meta, fasta, fai, dict, gtf, index -> [ meta, fasta, fai ] }
+            ch_fasta_fai
         )
         ch_versions = ch_versions.mix(MAP_LONGREADS.out.versions)
 
@@ -178,8 +191,7 @@ workflow ASSEVAL {
         //    
         BAM_STATS (
             ch_bam_bai,
-            PREPARE_GENOMES.out.genomes
-                .map { meta, fasta, fai, dict, gtf, index -> [ meta, fasta, fai ] },
+            ch_fasta_fai,
             []
         )
         ch_versions = ch_versions.mix(BAM_STATS.out.versions)
@@ -195,13 +207,15 @@ workflow ASSEVAL {
 
     if (steps.contains('variant_calling')) {
 
+        def model_file = params.genotype_model ? file(params.genotype_model, checkIfExists: true) : []
+        def config_file = file(params.glnexus_config, checkIfExists: true)
+
         //
         // SUBWORKFLOW: variant_calling
         //
         VARIANT_CALLING (
             ch_bam_bai.filter { meta, bam, bai -> meta.type == 'hifi' || meta.type == 'ont' },
-            PREPARE_GENOMES.out.genomes
-                .map { meta, fasta, fai, dict, gtf, index -> [ meta, fasta, fai ] },
+            ch_fasta_fai,
             [],
             model_file,
             config_file

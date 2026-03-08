@@ -1,0 +1,13 @@
+# General settings:
+#-----------------------
+project: "p2024-0022"
+outdir: "results_mappability"
+
+# Sample details:
+#-----------------------
+assemblies: "test/assemblies_test.csv"
+
+# Workflow settings:
+#-----------------------
+steps: "mappability"
+kmer_sizes: "50,100,150"
