@@ -5,8 +5,7 @@
 */
 
 include { GEM2_GEMINDEXER            } from '../../../modules/nf-core/gem2/gemindexer'
-include { GEM2_GEMMAPPABILITY        } from '../../../modules/nf-core/gem2/gemmappability'
-include { GEM2_GEM2BEDMAPPABILITY    } from '../../../modules/nf-core/gem2/gem2bedmappability'
+include { GEM2_GEMMAPPABILITY        } from '../../../modules/local/gemmappability'
 include { GENMAP_INDEX               } from '../../../modules/nf-core/genmap/index'
 include { GENMAP_MAP                 } from '../../../modules/nf-core/genmap/map'
 
@@ -51,6 +50,7 @@ workflow MAPPABILITY {
     )
     ch_versions = ch_versions.mix(GEM2_GEMMAPPABILITY.out.versions.first())
 
+ /*  
     // Combine output with index:
     def ch_to_bed = GEM2_GEMMAPPABILITY.out.map
         .join(ch_to_map.index, failOnDuplicate:true, failOnMismatch:true)
@@ -67,6 +67,7 @@ workflow MAPPABILITY {
         ch_to_bed.index
     )
     ch_versions = ch_versions.mix(GEM2_GEM2BEDMAPPABILITY.out.versions.first())
+*/
 
     //
     // MODULE: Run genmap_index
