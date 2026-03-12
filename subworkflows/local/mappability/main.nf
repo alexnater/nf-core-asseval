@@ -4,10 +4,10 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { GEM2_GEMINDEXER            } from '../../../modules/nf-core/gem2/gemindexer'
-include { GEM2_GEMMAPPABILITY        } from '../../../modules/local/gemmappability'
-include { GENMAP_INDEX               } from '../../../modules/nf-core/genmap/index'
-include { GENMAP_MAP                 } from '../../../modules/nf-core/genmap/map'
+include { GEM2_GEMINDEXER            } from '../../../modules/local/gem2/gemindexer'
+include { GEM2_GEMMAPPABILITY        } from '../../../modules/local/gem2/gemmappability'
+include { GENMAP_INDEX               } from '../../../modules/local/genmap/index'
+include { GENMAP_MAP                 } from '../../../modules/local/genmap/map'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,38 +50,20 @@ workflow MAPPABILITY {
     )
     ch_versions = ch_versions.mix(GEM2_GEMMAPPABILITY.out.versions.first())
 
- /*  
-    // Combine output with index:
-    def ch_to_bed = GEM2_GEMMAPPABILITY.out.map
-        .join(ch_to_map.index, failOnDuplicate:true, failOnMismatch:true)
-        .multiMap { meta, map, index ->
-            map:   [ meta, map ]
-            index: [ meta, index ]
-        }
-    
-    //
-    // MODULE: Run gem2_gem2bedmappability
-    //
-    GEM2_GEM2BEDMAPPABILITY (
-        ch_to_bed.map,
-        ch_to_bed.index
-    )
-    ch_versions = ch_versions.mix(GEM2_GEM2BEDMAPPABILITY.out.versions.first())
-*/
-
     //
     // MODULE: Run genmap_index
     //
     GENMAP_INDEX (
-        ch_fasta_fai.map { meta, fasta, fai -> [ meta, fasta ] }
+        ch_fasta_fai
     )
     ch_versions = ch_versions.mix(GENMAP_INDEX.out.versions.first())
 
-    // Combine indices with list of kmer-sizes:
+    // Join indices with chromsizes and combine with list of kmer-sizes:
     def ch_to_genmap = GENMAP_INDEX.out.index
+        .join(GENMAP_INDEX.out.sizes, failOnDuplicate:true, failOnMismatch:true)
         .combine(kmer_sizes)
-        .map { meta, index, kmer ->
-            [ meta + [id: "${meta.id}_${kmer}", kmer_size: kmer], index ]
+        .map { meta, index, sizes, kmer ->
+            [ meta + [id: "${meta.id}_${kmer}", kmer_size: kmer], index, sizes ]
         }
 
     //
